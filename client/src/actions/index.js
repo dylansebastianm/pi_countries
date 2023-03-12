@@ -1,4 +1,4 @@
-import { FILTER_CONTINENT, FILTER_NAME, FILTER_POPULATION, GET_ACTIVITIES, GET_COUNTRIES, GET_COUNTRIES_ID, GET_COUNTRIES_NAME, POST_ACTIVITY } from './types';
+import { FILTER_CONTINENT, FILTER_NAME, FILTER_POPULATION, GET_ACTIVITIES, GET_COUNTRIES, GET_COUNTRIES_ID, GET_COUNTRIES_NAME, POST_ACTIVITY, GET_COUNTRY_NAME_ID } from './types';
 import axios from "axios";
 
 export const getCountries =()=> {
@@ -43,16 +43,30 @@ export const getCountryDetail =(id)=> {
 
 }
 
-export const getCountryName =(name)=> {
+
+ export const getCountryName =(payload)=> {
+    console.log('payload',payload)
+    return {
+        type: GET_COUNTRIES_NAME,
+        payload
+    }
+
+}  
+
+export const getCountryNameId =(name)=> {
     return async function(dispatch){
-        let json = await axios.get('http://localhost:3001/countries?name=' + name);
+        let json = await axios.get("http://localhost:3001/countries?name=" + name);
         return dispatch({
-            type: GET_COUNTRIES_NAME,
+            type: GET_COUNTRY_NAME_ID,
             payload: json.data
         })
     }
 
 }
+
+
+
+  
 
 export const postActivity =(payload)=> {
     return async function(dispatch){

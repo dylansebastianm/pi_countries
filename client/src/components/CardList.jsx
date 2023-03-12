@@ -5,80 +5,98 @@ import { getCountryName, filterContinent, filterPopulation, filterName} from "..
 
 import Card from "./Card.jsx";
 import "./styles/cardList.css"
-import { Link } from "react-router-dom";
+import { Link, useLocation,useHistory } from "react-router-dom";
 import "./styles/nav.css"
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+
 
 
  
-function CardList(){
-  const allCountries = useSelector(state => state.allCountries);
+function CardList({countries}){
+/*   const allCountries = useSelector(state => state.countries); */
 
 
-  const [countrySearch, setcountrySearch] = useState("")
+  const {search}=useLocation()
+  const query = new URLSearchParams(search) // busca en el parametro de la url el query que haya
+  const [loading, setLoading] = useState(true);
+  const history = useHistory()
+  const dispatch = useDispatch();
+  const continent = query.get('continent')
 
-  
-   
-    const dispatch = useDispatch();
 
-
-    useEffect (()=>{
+   useEffect (()=>{
         dispatch(getCountries());
+        setTimeout(() => {setLoading(false);
+        }, 1000);
+        query.delete('continent')
+        history.push({search:query.toString()})
        
     },[dispatch])
-  
-  
-
-
-
 /*   ----------FILTER BY NAME FOR SEARCHBAR---------------- */
+
+const [countrySearch, setcountrySearch] = useState('')
+
     useEffect (()=>{
         dispatch(getCountryName(countrySearch));
-       
+      
     },[dispatch, countrySearch])
 
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        setcountrySearch(event.target.value)
+    const handleSubmit = (e) => {
+ /*        event.preventDefault();
+        setcountrySearch(event.target.value) */
+        let continent = query.get('continent')
+        e.preventDefault();
+        setcountrySearch(continent !== '' && continent !== null  ? 
+        {
+          [e.target.name]:e.target.value,
+          continent:continent
+        }
+        :{[e.target.name]:e.target.value,
+          continent:'All'
+        }
+        );
     }
+
 
 
 /* -------------- PAGINATED------------------------------- */
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [cardsPerPage, setCardsPerPage] = useState(8);
+    const [currentPage, setCurrentPage] = useState(1); //inicia en la pagina número 1
+    const [cardsPerPage, setCardsPerPage] = useState(8); // muestra hasta 8 cartas
+
 
 
     
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
       };
-
-
-
     const indexOfLastCard = currentPage * cardsPerPage;
     const indexOfFirstCard = indexOfLastCard - cardsPerPage;
-    const currentCards = allCountries.slice(indexOfFirstCard, indexOfLastCard);
-
-
-
+    const currentCards = countries ? countries.slice(indexOfFirstCard, indexOfLastCard) : [];
     const pageNumbers = [];
-            
-    for (let i = 1; i <= Math.ceil(allCountries.length / cardsPerPage); i++) {
+    for (let i = 1; i <= Math.ceil(countries.length / cardsPerPage); i++) {
     pageNumbers.push(i);
     }
 
+/*     const pageNumbers = countries
+  ? Array.from({ length: Math.ceil(countries.length / cardsPerPage) }, (_, i) => i + 1)
+  : [];
+ */
 
 
 /* ---------------FILTERS---------------- */
 
 
 
-
-const handleContinent = (e)=>{
-  console.log(e.target.value)
+const handleContinent = (e)=>{ 
+  query.set('continent',e.target.value)
+  history.push({search:query.toString()})
   dispatch(filterContinent(e.target.value))
+  setCurrentPage(1)
+  
 }
+
 
 
 const handleName = (e) =>{
@@ -99,8 +117,8 @@ const handlePopulation = (e) =>{
 
     return (
 
- 
-        <div >
+/*     ------------------------NAV--------------------------
+ */        <div >
 
                 <div className="nav">
                     <div className="rutasNavContainer">
@@ -124,8 +142,9 @@ const handlePopulation = (e) =>{
                 
                 <div>
                     <input className="buscador"
-                placeholder="  Search country.."
-                onChange={(event)=>handleSubmit(event)}>
+                      name="search"
+                      placeholder="  Search country.."
+                      onChange={(event)=>handleSubmit(event)}>
 
                     </input>
                 </div>
@@ -140,7 +159,7 @@ const handlePopulation = (e) =>{
       <div className="filters">
         <div>     
           <select 
-          className ="select"
+          className ="select"         
           onChange={(e) => handleContinent(e)}>
             <option value="" selected disabled >Filter by continent</option>
             <option value='All' >All continents</option>
@@ -178,30 +197,81 @@ const handlePopulation = (e) =>{
         
       </div>
 
-      <div className="containerExtreme">
-        <div className="listCards">
-          {currentCards.map((card) => (
-            <Card key={card.id} {...card} />
-          ))}
-          
-        </div>
+{/* ----------------------CARTAS---------------------------------
+ */}
 
-        <ul className="paginated">
-          {pageNumbers.map((pageNumber) => (
-            <div key={pageNumber} className="">
-              <button 
-              onClick={() => handlePageChange(pageNumber)} 
-              className="buttonPaginated">
-                {pageNumber}
-              </button>
-            </div>
-          ))}
-        </ul>
+      <div className="containerExtreme">
+
+          <div className="listCards">
+            
+                {loading ? ( <p className="loading">Loading..</p>
+             
+              
+                ) : (
+                currentCards && currentCards.map((e) => (
+              <Card key={e.id} {...e} />
+            )))}
+            
+          </div>
 
       </div>
+      <ul className="paginated">
+              
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="buttonPaginated"
+              >
+              🢘
+              <i className="fas fa-chevron-left"></i>
+              </button>
+            
+
+            
+            {pageNumbers.map((pageNumber) => (
+              <div key={pageNumber} className="">
+                <button 
+                className={`buttonPaginated${pageNumber === currentPage ? " active" : ""}`}
+                onClick={() => handlePageChange(pageNumber)} 
+                >
+                  {pageNumber}
+                </button>
+
+
+              </div>
+            ))}
+              
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === pageNumbers.length}
+                  className="buttonPaginated"
+                >
+                  
+                  🢚
+                  <i className="fas fa-chevron-right"></i>
+                </button>
+              
+      </ul>
   </div>
+
+ {/* <AiOutlineLoading3Quarters className="loading"/> */}
+
+
+
+
+{/*         currentCards tiene allCountries pero filtrado segun los elementos
+        que se mostraran en la pagina seleccionada
+
+        realizo mapeo de variable que tiene los elementos que se mostraran en cada pagina */}
+
+
+  {/*           mapeo pageNumbers que tiene el conjunto de números de paginas
+          en funcion de la cantidad de cartas */}
+
     
-  
+  {/*             al hacer click se actualiza con handlePageChange el estado
+            currentPage con el número de pagina y currentCards actualizaautomáticamente el 
+            cambio de pagina */}
   
 
 

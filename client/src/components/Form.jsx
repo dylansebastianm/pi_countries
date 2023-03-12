@@ -1,7 +1,7 @@
     import React, { useEffect, useState} from "react";
     import {useDispatch, useSelector} from "react-redux";
     import { postActivity } from "../actions/index.js";
-    import { getCountryName } from "../actions/index.js";
+    import { getCountryNameId } from "../actions/index.js";
 
 
         
@@ -15,32 +15,33 @@
                 dificulted: 0,
                 duration: 0,
                 season: "",
-                country: []
+                country: ""
             }
         )
 
         const dispatch = useDispatch();
 
-        useEffect(() => {
+       /*  useEffect(() => {
             dispatch(postActivity(formValues));
-        }, [formValues, dispatch]);
+        }, [formValues, dispatch]); */
         
 
         const handleSubmit = (event) => {
             event.preventDefault();
-           let valores={
+            let valores={
                 name: event.target[0].value,
                 duration: event.target[1].value,
                 dificulted: event.target[2].value,
                 season: event.target[3].value,
                 country: selectedCountry.countries
 
-           }
+           } 
            console.log("name", nameValidation)
-           console.log("pais selected" ,formValues.country)
+           console.log("pais selected" ,selectedCountry.countries)
+           console.log("SELECCIÓN" ,valores)
 
 
-           if(nameValidation.length > 4 && formValues.country.length !== -1){
+           if(nameValidation.length > 4 && selectedCountry.countries.length > 0){
 
            
             setFormValues({
@@ -48,34 +49,30 @@
                 duration: event.target[1].value,
                 dificulted: event.target[2].value,
                 season: event.target[3].value,
-                country: selectedCountry.countries,
+                country: selectedCountry.countries
 
             })
+            dispatch(postActivity(valores));
             
             alert(
                 "Activity created successfully"
             )
+                        setTimeout(() => {
+                window.location.href = `/home`
+                
+            }, 1000); 
+            
         } else {
             alert(
                 "All fields have to completed"
             );
           }  
-            console.log(valores)
+/*             console.log(valores)
             event.target[0].value = "";
             event.target[1].value = ""; 
             event.target[2].value = "";
             event.target[3].value = "";
-            event.target[4].value = "";
-
-
-
-            setTimeout(() => {
-                window.location.href = `/home`
-                
-            }, 1000); 
-            
-            
-            
+            event.target[4].value = ""; */  
 
         }
 
@@ -90,7 +87,7 @@
     const [countrySearch, setcountrySearch] = useState("")
 
     useEffect (()=>{
-        dispatch(getCountryName(countrySearch));
+        dispatch(getCountryNameId(countrySearch));
     
     },[dispatch, countrySearch])
 
@@ -102,17 +99,36 @@
 
 /* -------ID SELECTED FOR POST OF ACTIVITY----------- */
 
-  const [selectedCountry, setSelectedCountry] = useState({
-    countries:[]
-  }
+ const [selectedCountry, setSelectedCountry] = useState({
+    countries:[]}
   );
 
   const handleCountryId = (event) => {
   const countryId = event.target.value;
-  console.log(selectedCountry.countries)
+  console.log("PAISES SELECCIONADOS" ,selectedCountry.countries)
   setSelectedCountry({
    countries: [...selectedCountry.countries, countryId]});
-}
+} 
+
+
+/* const handleCountryId = (event) => {
+    const countryId = event.target.value;
+    setSelectedCountry((prevSelectedCountry) => {
+      // si el país ya está seleccionado, se elimina del estado
+      if (prevSelectedCountry.countries.includes(countryId) && prevSelectedCountry.countries.length > 1) {
+        return {
+          countries: prevSelectedCountry.countries.filter((id) => id !== countryId),
+        };
+      }
+      // si el país no está seleccionado, se agrega al estado
+      return {
+        countries: [...prevSelectedCountry.countries, countryId],
+      };
+    });
+  }; */
+  
+
+
 
 function sliceName(name){
     const countrySlice = name.slice(0,10)
@@ -125,7 +141,8 @@ function sliceName(name){
 
   const [nameValidation, setnameValidation] = useState("");
 
-
+    
+  
 
 return(
     <form onSubmit={(event) =>handleSubmit(event)}>
@@ -139,7 +156,6 @@ return(
                                     <p className="pForValidation">Must contain at least 3 letters</p>
                                     <input
                                     className={nameValidation.length < 4 && nameValidation !== "" ? "validationErrorInput" : "input"}
-                                    /* {nameValidation.length < 4 && nameValidation !== "" ? className="validationErrorInput" : className="input"}  */
                                     placeholder="tennis, soccer, swimming..."
                                     
                                     name="name" 
@@ -224,7 +240,7 @@ return(
                                 </div>
                                 
 
-                                <button     
+                                <button  
                                 className="buttonForm"
                                 type="submit">  
                                       ¡Send new activity!  
@@ -251,9 +267,11 @@ return(
                                         <input 
                                         
                                         type="checkbox" 
+                                        name="countries"
                                         value={e.id} 
                                         onClick={handleCountryId}
                                         className="check"
+
                                         ></input>                     
                                     </div>
                             

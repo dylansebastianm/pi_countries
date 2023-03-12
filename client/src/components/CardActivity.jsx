@@ -2,7 +2,17 @@ import React from "react";
 import "./styles/activity.css"
 
 function CardActivity({ name,  dificulted, duration, season, country, countryImg}) {
+
+
+    function sliceName(name){
+        const countrySlice = name.slice(0,10)
+        return countrySlice
+    }
+
+    
     return(
+            
+       
             <div className="cardActivityContainer">
                 <h3 className="activityTittle">ACTIVITY AVAILABLE</h3>
 
@@ -28,14 +38,33 @@ function CardActivity({ name,  dificulted, duration, season, country, countryImg
 
 
                     <div className="listActivity3">
-                        <img 
-                        className="imgCountryActivity"
-                        src = {countryImg}></img>
-                        <h3> {country} </h3>
+                        {console.log("PAISES",country)}
+                       
+                        {country.length > 1 ? country.map(c=> (
+
+                            <div className="auxCountryForActivity">
+                            <img 
+                            className="imgCountryActivity"
+                            src = {c.img}></img>
+                            <h3> {sliceName(c.name)} </h3>
+                            </div>
+                        )
+                           
+                        
+                           
+                        ) : 
+                        <div >
+                            <img 
+                            className="imgCountryActivity"
+                            src = {country[0].img}></img>
+                            <h3> {sliceName(country[0].name)} </h3>
+                        </div>}
                     </div>
+                  
                      
                     
                 </div>
+                
             </div>
     )
 }

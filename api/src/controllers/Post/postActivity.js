@@ -28,7 +28,7 @@ router.post('/post', async (req, res) => {
       });
    
 
-        const countryForActivity = await Country.findOne({
+        const countryForActivity = await Country.findAll({
           where: {
             id: country,
           },

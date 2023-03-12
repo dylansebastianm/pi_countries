@@ -23,7 +23,7 @@ router.get('/:id', async (req, res) => {
       
   })
   if(!searchId) {
-      res.status(404).send(`El código '${id}' no corresponde a un pais existente`)
+      res.status(404).send(`El '${id}' no se encuentra en ningun país`)
       } else {
       res.json(searchId)
       }

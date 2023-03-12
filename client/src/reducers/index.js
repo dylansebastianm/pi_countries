@@ -7,6 +7,7 @@ import {
     FILTER_CONTINENT,
     FILTER_NAME,
     FILTER_POPULATION,
+    GET_COUNTRY_NAME_ID
 } from "../actions/types";
 
 const initialState = {
@@ -14,7 +15,7 @@ const initialState = {
     countries:[],
     allActivities: [],
     countryDetail: [],
-    
+    contryName: []
 }
 
 const rootReducer = (state = initialState , action) => {
@@ -31,6 +32,7 @@ const rootReducer = (state = initialState , action) => {
          
         case GET_COUNTRIES_ID:
             return{
+                ...state,
                 countryDetail: action.payload,
                 
             }
@@ -42,11 +44,54 @@ const rootReducer = (state = initialState , action) => {
                 
             }
         case GET_COUNTRIES_NAME:
-            return{
-                ...state,
-                allCountries: action.payload,
+                if(
+                    action.payload.continent !== '' 
+                ){
+                    const allCountries = state.countries;
+                    const countryFilter = action.payload.continent === 'All' ? 
+                    allCountries 
+                    : allCountries.filter(e => e.continent === action.payload.continent)
+                    let finish = countryFilter.filter(e => e.name.toLowerCase()
+                    .includes(action.payload.search.toLowerCase())
+                    )
+                    return{
+                        ...state,
+                        allCountries:finish
+                    }
+                }
                 
-            }
+/*                  const todos = state.allCountries
+
+                if(action.payload) {
+                let countryFilterName = todos.filter(e => e.name.toLowerCase().includes(action.payload.toLowerCase()));
+                
+                return{
+                    ...state,
+                    allCountries: countryFilterName,
+                    
+                } 
+            } else  {
+                return{
+                    ...state,
+                    allCountries: state.countries
+                    
+                }
+                
+            }  */
+
+
+            
+            
+
+        case GET_COUNTRY_NAME_ID:
+            return{
+                 ...state,
+                 allCountries: action.payload,
+                    
+            }  
+
+             
+           
 
         case POST_ACTIVITY:
             return{
@@ -55,10 +100,14 @@ const rootReducer = (state = initialState , action) => {
                     
             }
 
+        
+
 
         case FILTER_CONTINENT:
             const allCountries = state.countries;
-            const countryFilter = action.payload === 'All' ? allCountries : allCountries.filter(e => e.continent === action.payload)
+            const countryFilter = action.payload === 'All' ? 
+            allCountries 
+            : allCountries.filter(e => e.continent === action.payload)
             return {
                 ...state,
                 allCountries: countryFilter,
@@ -66,7 +115,7 @@ const rootReducer = (state = initialState , action) => {
 
         case FILTER_NAME:
                 const orderName = action.payload === 'asc' ?
-                [...state.countries].sort(function(a, b) {
+                [...state.allCountries].sort(function(a, b) {
                     if(a.name > b.name) {
                         return 1;
                     }
@@ -75,7 +124,7 @@ const rootReducer = (state = initialState , action) => {
                     }
                     return 0;
                 }) :
-                [...state.countries].sort(function(a, b) {
+                [...state.allCountries].sort(function(a, b) {
                     if(a.name > b.name) {
                         return -1;
                     }

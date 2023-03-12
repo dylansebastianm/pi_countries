@@ -1,4 +1,5 @@
 import './App.css';
+
 import { Route, BrowserRouter } from "react-router-dom";
 import { Nav } from './components/Nav';
 import { CountryDetail } from './components/CountryDetail';
@@ -8,11 +9,28 @@ import {LandingPage} from './components/LandingPage';
 import {ActivityList} from './components/ActivityList';
 import {Footer} from './components/Footer';
 
+import React, { useEffect} from "react";
+import { getActivities } from "../src/actions/index";
+import {useDispatch, useSelector} from "react-redux";
+
+
 
 
 
 
 function App() {
+  const allActivities = useSelector(state => state.allActivities);
+  const allCountries = useSelector(state => state.allCountries);
+  const dispatch = useDispatch();
+
+
+  useEffect (()=>{
+    dispatch(getActivities());
+    
+   
+},[dispatch])
+
+
   return (
     <div className="App">
       <BrowserRouter>
@@ -24,19 +42,25 @@ function App() {
 
         <Route exact path="/home" >
         
-         <CardList/>
+         <CardList
+         countries={allCountries}
+         />
          <Footer/>      
         </Route>
 
         <Route exact path="/activities" >
          <Nav/>
-         <ActivityList/>
+         <ActivityList
+         actividades= {allActivities}
+         />
          <Footer/>              
         </Route>
 
         <Route path="/countrydetail/:id" >  
           <Nav/>
-          <CountryDetail/>
+          <CountryDetail
+          actividades= {allActivities}
+          />
           <Footer/>      
          </Route> 
 

@@ -1,13 +1,18 @@
 import "./styles/countryDetail.css";
-import React, { useEffect} from "react";
+import React, { useEffect, useState} from "react";
 import { useSelector, useDispatch} from "react-redux";
 import { getCountryDetail } from "../actions/index.js";
 import {useParams} from "react-router-dom";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 
-function CountryDetail(){
+
+function CountryDetail({actividades}){
+    const [loading, setLoading] = useState(true);
 
     const countryId = useSelector(state => state.countryDetail);
+   
+
   
    
     const dispatch = useDispatch();
@@ -16,6 +21,8 @@ function CountryDetail(){
 
     useEffect (()=>{
         dispatch(getCountryDetail(id));
+        setTimeout(() => {setLoading(false);
+        }, 1000);
        
     },[dispatch])
 
@@ -23,12 +30,13 @@ function CountryDetail(){
     return(
 
 
-
+        <div className="containerExtremeMasterUltra">
         <div className="countryDetailContainer">
             <div className="imgtittle">
                 <img className="imgCountryDetail" src= {countryId.img} alt="No se encontró la imagen"/>
                 <h2 className="countryDetailTittle">{countryId.name}</h2>
             </div>
+        
         
             <div className="listDetailsContainer">
                 
@@ -59,10 +67,34 @@ function CountryDetail(){
                         <hr></hr>
                         <p>{countryId.population}</p>
                     </ul>
-            </div>
-            
+            </div>          
+
         </div> 
+        <div className="countryActivitiesContainer">
+                <h2 className="countryActivitiesContainerTittle">Activities Available</h2>
+
+                {loading ? (
+                    
+              
+                    <p className="loading">Loading..</p>
+                    ) : (
+                actividades && actividades.map(e =>
+                    
+                    <li className="activities"> {e.name}
+                        
+                    </li>
+                    )
+                    )}
+                
+            
+            </div>
+        </div>
+        
+
+        
     )
 }
+
+      {/* <AiOutlineLoading3Quarters className="loadingDetail"/> */}
 
 export {CountryDetail};
